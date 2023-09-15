@@ -30,6 +30,7 @@ control.setSalon(1,10)
 control.setSalon(2,10)
 control.setSalon(3,10)
 control.setSalon(4,10)
+control.setSalon(5,10)
 
 """Creacion de estudiantes"""
 #Ya no se crean estudiantes porque se asignaran automaticamente

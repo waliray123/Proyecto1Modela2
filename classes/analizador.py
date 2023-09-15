@@ -20,14 +20,7 @@ class AnalizadorHorario:
             for s1 in self.control.salones:
                 if c1.cantidadEstudiantes <= s1.asientos:
                     c1.addSalonCandidato(s1)
-        
-
-
-    #Analizar que profesores pueden dar cada curso
-    #Se analizaron al insertar los profesores
-
-
-
+            
     #Validar el horario segun el salon con el curso, cantidad de alumnos, y profesor
     def analizarCursoEntreEnPeriodo(self):        
         horariosARetornar = []

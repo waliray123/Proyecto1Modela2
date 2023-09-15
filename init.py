@@ -62,8 +62,11 @@ for p1 in listaPeriodos:
 analizadorHorario = AnalizadorHorario(control,semestre,duracionPeriodo)
 horariosRetornados = analizadorHorario.analizarCursoEntreEnPeriodo()
 
+'''
 for horarioR in horariosRetornados:
     horarioR.dibujarHorario(control,listaPeriodos)
+'''
+
 
 print("terminados")
 
