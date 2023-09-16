@@ -82,7 +82,7 @@ class ControlDatos:
         horarioNuevo = 1;
         for horario in self.horarios:
             if horario.horaInicial == horarioContratacion[0]:
-                if horario.horaInicial == horarioContratacion[1]:                    
+                if horario.horaFinal == horarioContratacion[1]:                    
                     return horario
 
         if horarioNuevo == 1:

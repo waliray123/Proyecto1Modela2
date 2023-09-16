@@ -1,4 +1,4 @@
-from mockData import control #Carga de datos
+from datos.mockD import control #Carga de datos
 from datetime import datetime, timedelta #Utilizacion de Tiempos
 import matplotlib.pyplot as plt
 from classes.analizador import AnalizadorHorario

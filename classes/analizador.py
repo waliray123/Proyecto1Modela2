@@ -69,27 +69,41 @@ class AnalizadorHorario:
         #Si se desean solo los primeros 2 cambiar a range(2) en vez de range(3)
         for tipoAsignacion in range(3):
             for curso1 in cursos:
-                vecesPasado = 0
+                vecesPasado = 0                
                 if curso1.asignado == 0:
                     if tipoAsignacion == 0:
                         if not curso1.profesoresFijos:
                             break
-                    for periodo1 in listaPeriodos1:
+                    seAvisoPeriodoSemesteEnHora = 0
+                    hayPeriodoDeSemestreEnHora = 0
+                    for periodo1 in listaPeriodos1:                        
                         vecesPasado+=1
                         if periodo1.curso == None:
-                            if periodo1.salon.asientos >= curso1.cantidadEstudiantes:
-                                estaAsignadoProfesor = self.asignarProfesorAPeriodo(periodo1, curso1, horarioFinal1, tipoAsignacion)
-                                if estaAsignadoProfesor == 0: 
-                                    #Si se esta realizando el tipo de asignacion 0 entonces se esta asignando el profesor fijo, si es el 1 se esta asignando un profesor cualquiera
-                                    periodo1.setCurso(curso1)
-                                    curso1.asignado = 1
-                                    break
-                                else:
-                                    if vecesPasado == cantidadPeriodos:
-                                        if tipoAsignacion == 1:
-                                            horarioFinal1.agregarUnaAdvertencia(2,"No se logro asignar un profesor obligatorio al curso: " + curso1.nombre, 1)
-                                        elif tipoAsignacion == 2:
-                                            horarioFinal1.agregarUnaAdvertencia(3,"No se logro asignar un ningun profesor obligatorio al curso: " + curso1.nombre, 1)
+                            #Revisa que el curso que se va a asignar no este a la misma hora de otro con semestre igual                                
+                            if hayPeriodoDeSemestreEnHora <= 0:
+                                hayPeriodoDeSemestreEnHora = self.revisarPeriodoSemestre(periodo1,curso1,listaPeriodos1)
+                            if hayPeriodoDeSemestreEnHora <= 0:
+                                if periodo1.salon.asientos >= curso1.cantidadEstudiantes:
+                                    estaAsignadoProfesor = self.asignarProfesorAPeriodo(periodo1, curso1, horarioFinal1, tipoAsignacion)
+                                    if estaAsignadoProfesor == 0: 
+                                        #Si se esta realizando el tipo de asignacion 0 entonces se esta asignando el profesor fijo, si es el 1 se esta asignando un profesor cualquiera                                                                        
+                                        periodo1.setCurso(curso1)
+                                        curso1.asignado = 1
+                                        break
+                                    else:
+                                        if vecesPasado == cantidadPeriodos:
+                                            if tipoAsignacion == 1:
+                                                horarioFinal1.agregarUnaAdvertencia(2,"No se logro asignar un profesor obligatorio al curso: " + curso1.nombre, 1)
+                                            elif tipoAsignacion == 2:
+                                                horarioFinal1.agregarUnaAdvertencia(3,"No se logro asignar un ningun profesor obligatorio al curso: " + curso1.nombre, 1)
+                            else:                       
+                                if seAvisoPeriodoSemesteEnHora == 0:
+                                    #TODO: Advertir sobre que el periodo no se asigno en la hora del periodo1 porque hay un curso del mismo semestre que se asigno antes
+                                    seAvisoPeriodoSemesteEnHora = 1
+                                if hayPeriodoDeSemestreEnHora <= 1:
+                                    seAvisoPeriodoSemesteEnHora = 0
+                        hayPeriodoDeSemestreEnHora -= 1
+
         return horarioFinal1
     
     def asignarProfesorAPeriodo(self, periodo, curso, horarioFinal,tipoAsignacion):
@@ -134,6 +148,33 @@ class AnalizadorHorario:
                     cursosDevolver.append(curso)
         
         return cursosDevolver    
+        
+    #Esta funcion revisa si en esa hora del periodo no se esta dando un curso con el mismo semestre del que se quiere asignar
+    # Retorna 1 si esta 
+    def revisarPeriodoSemestre(self,periodo,curso,listaPeriodos):
+        periodosMismaHora = []
+        posicionPeriodo = 0
+        posicionPeriodoFija = 0
+        for periodoL in listaPeriodos:
+            if periodoL.idHora == periodo.idHora:
+                periodosMismaHora.append(periodoL)
+                if periodoL == periodo:
+                    posicionPeriodoFija = posicionPeriodo
+                posicionPeriodo +=1
+        
+        indiceEncontrado = 0
+        for periodoH in periodosMismaHora:
+            if periodoH.curso != None:
+                if periodoH.curso.semestre == curso.semestre:
+                    print(len(periodosMismaHora))
+                    print(posicionPeriodoFija)
+                    return len(periodosMismaHora) - posicionPeriodoFija
+
+                
+
+
+        return indiceEncontrado
+
 
 
     def crearNuevaListaPeriodos(self,listaPeriodos):        
@@ -158,9 +199,8 @@ class AnalizadorHorario:
 
 #TODO:
 # Por ejemplo si hay un curso con sobrepeso, asignarlo en el salon con mas espacio, hacer un rango de estudiantes
-# Revisar la asignacion de profesor, falta la revision de la hora en que trabaja
 # hacer cursos que tienen salones especificos
-# Que los cursos del mismo semestre no se topen en la misma hora de periodo
+# Aleatorizacion 
 
 
 

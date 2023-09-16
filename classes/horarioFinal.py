@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from classes.controlDatos import ControlDatos
 from classes.periodo import Periodo
 from classes.advertencia import Advertencia
+import json
 
 class HorarioFinal:    
 
@@ -10,7 +11,7 @@ class HorarioFinal:
         self.nombre = nombre
         self.listaPeriodos = listaPeriodos
         self.advertencias = []   
-        self.duracionPeriodo = duracionPeriodo
+        self.duracionPeriodo = duracionPeriodo        
 
     def addAdvertencia(self,advertencia):
         self.advertencias.append(advertencia)
