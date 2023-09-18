@@ -52,9 +52,16 @@ class HorarioFinal:
 
         cantidadCursosNoAsignados = cantidadTotalCursos - cantidadCursosAsignados
 
+        if cantidadTotalCursos == 0:
+            cantidadTotalCursos = 0.001
+
         self.eficicienciaCursosAsignados = cantidadCursosAsignados/cantidadTotalCursos
 
         posibleUsabilidad = cantidadPeriodosLibres - cantidadCursosNoAsignados
+
+        if cantidadPeriodosLibres == 0:
+            cantidadPeriodosLibres = 0.001
+
         self.eficienciaUsabilidadPeriodos = posibleUsabilidad/cantidadPeriodosLibres
 
         

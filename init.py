@@ -6,8 +6,7 @@ import importlib
 
 class Inicializador:
 
-    def __init__(self,tipoGeneracion,cantidadCorridas,duracionPeriodo,semestreUsar,strHoraI,strHoraF):            
-        from datos.mockD import MockData #Carga de datos
+    def __init__(self,tipoGeneracion,cantidadCorridas,duracionPeriodo,semestreUsar,strHoraI,strHoraF):                  
         try:
             importlib.reload(mockD)
             print('Módulo "mockD" recargado exitosamente.')
@@ -15,6 +14,8 @@ class Inicializador:
             print('No se pudo encontrar el módulo "mockD".')
         except Exception as e:
             print(f'Error al recargar el módulo "mockD": {e}')
+        
+        from datos.mockD import MockData #Carga de datos  
             
         """Cargar los datos necesarios: Cursos, Estudiantes, Profesores, Salones"""
         cargarDatos = MockData()

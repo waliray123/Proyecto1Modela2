@@ -171,8 +171,9 @@ class AnalizadorHorario:
                                                     horarioFinal1.agregarUnaAdvertencia(2,"No se logro asignar un profesor optativo al curso: " + curso1.nombre, 1)
                                                 elif tipoAsignacion == 2:
                                                     horarioFinal1.agregarUnaAdvertencia(3,"No se logro asignar un ningun profesor al curso: " + curso1.nombre, 1)
-                                    else:
-                                        horarioFinal1.agregarUnaAdvertencia(1,"No se logro asignar el curso: " + curso1.nombre + " porque por falta de asientos en salon: " + periodo.salon.numero, 2)
+                                    else:                                        
+                                        numeroSalon = str(periodo1.salon.numero)
+                                        horarioFinal1.agregarUnaAdvertencia(1,"No se logro asignar el curso: " + curso1.nombre + " porque por falta de asientos en salon: " + numeroSalon, 2)
                                 else:                       
                                     if seAvisoPeriodoSemesteEnHora == 0:
                                         #Advertir sobre que el periodo no se asigno en la hora del periodo1 porque hay un curso del mismo semestre que se asigno antes
