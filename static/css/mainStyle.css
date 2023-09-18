@@ -99,6 +99,32 @@ footer a:hover {
     border-bottom: 1px transparent;
 }
 
+/*--- Estilos de los botones ---*/
+/* Estilos base para el botón */
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+/* Estilos para cuando el cursor está sobre el botón */
+.button:hover {
+    background-color: #2980b9;
+}
+
+/* Estilos para cuando el botón está presionado */
+.button:active {
+    background-color: #1c6ca6;
+}
+
 
 /*---- Tabla ----*/
 

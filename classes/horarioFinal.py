@@ -7,11 +7,15 @@ import json
 
 class HorarioFinal:    
 
-    def __init__(self,nombre,listaPeriodos,duracionPeriodo):
+    def __init__(self,nombre,listaPeriodos,duracionPeriodo,cantidadPeriodos,salones):
         self.nombre = nombre
         self.listaPeriodos = listaPeriodos
         self.advertencias = []   
-        self.duracionPeriodo = duracionPeriodo        
+        self.duracionPeriodo = duracionPeriodo  
+        self.eficicienciaCursosAsignados = 0    
+        self.eficienciaUsabilidadPeriodos = 0   
+        self.cantidadPeriodos = cantidadPeriodos
+        self.salones = salones
 
     def addAdvertencia(self,advertencia):
         self.advertencias.append(advertencia)
@@ -20,11 +24,29 @@ class HorarioFinal:
         advertencia = Advertencia(tipo,contenido,tipoAsignacion)
         self.advertencias.append(advertencia)
     
-    def calcularEficiencia(self):
+    def calcularEficiencia(self,cantidadTotalCursos):
         # La eficiencia sera medida con varios datos la suma de ellos hacen la eficiencia, entre mas alta mejor la eficiencia
-        # (Cursos asignados / Todos los cursos) -> Eficiencia de cursos asignados
-        # (Periodos libres / Cantidad de cursos no asignados) -> Eficiencia de usabilidad de periodos        
+        # (Cursos asignados / Todos los cursos) -> Eficiencia de cursos asignados, siempre es 1 o menor que 1, entre mas cercano a 1 mejor        
+        # (Cantidad de cursos no asignados / Periodos libres ) -> Eficiencia de usabilidad de periodos, es 1 o menor, si es negativo quiere decir que no habia
+        # posibilidad de insertar mas cursos porque faltaban periodos libres, si es negativo entre mas cerca del 0 mas probabilidad de insertar tenia
 
+        cantidadCursosAsignados = 0
+        cantidadPeriodosLibres = 0
+        for periodo in self.listaPeriodos:
+            if periodo.curso != None:
+                cantidadCursosAsignados += 1
+            else:
+                cantidadPeriodosLibres += 1
+
+        cantidadCursosNoAsignados = cantidadTotalCursos - cantidadCursosAsignados
+
+        self.eficicienciaCursosAsignados = cantidadCursosAsignados/cantidadTotalCursos
+
+        posibleUsabilidad = cantidadPeriodosLibres - cantidadCursosNoAsignados
+        self.eficienciaUsabilidadPeriodos = posibleUsabilidad/cantidadPeriodosLibres
+
+        
+            
 
         print("Calcular eficiencia")
 

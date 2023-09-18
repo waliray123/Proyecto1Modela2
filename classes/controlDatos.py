@@ -5,32 +5,38 @@ from classes.estudiante import Estudiante
 from classes.horario import Horario
 from classes.profesor import Profesor
 from classes.periodo import Periodo
+import random
 
 
 class ControlDatos:
 
-    cursos = []
-    salones = []    
-    estudiantes = []
-    horarios = []
-    profesores = []
-    periodos = []
-    carreras = []
-
-
     def __init__(self):                
-        print("Inicializacion de controlador")    
+        print("Inicializacion de controlador")   
+        self.cursos = []
+        self.salones = []    
+        self.estudiantes = []
+        self.horarios = []
+        self.profesores = []
+        self.periodos = []
+        self.carreras = [] 
 
-    def setCarrera(self,codigo,nombre):
-        c1 = Carrera(codigo, nombre)
-        self.carreras.append(c1)      
+    def setCarrera(self,codigo,nombre): 
+        # Genera valores RGB aleatorios
+        red = random.randint(0, 255)
+        green = random.randint(0, 255)
+        blue = random.randint(0, 255)
+        # Formatea el color en formato hexadecimal
+        color_hex = "#{:02x}{:02x}{:02x}".format(red, green, blue)
+        print("Color aleatorio:", color_hex) 
+        c1 = Carrera(codigo, nombre,color_hex)
+        self.carreras.append(c1)    
 
     def setCurso(self,codigo,nombre,creditos,semestre,duracion,carrera,cantidadEstudiantes):
         c1 = self.buscarCarreraPorCodigo(carrera)
         if c1 == 0:
             print("No se pudo ingresar la carrera ya que no existe una con codigo: " + str(carrera))
-        c1 = Curso(codigo,nombre,creditos,semestre,duracion,c1,cantidadEstudiantes)
-        self.cursos.append(c1)      
+        c2 = Curso(codigo,nombre,creditos,semestre,duracion,c1,cantidadEstudiantes,c1.color)
+        self.cursos.append(c2)
 
     def setSalon(self,numero,asientos):
         s1 = Salon(numero,asientos)
@@ -72,6 +78,12 @@ class ControlDatos:
         self.profesores.append(p1)
         for cursoPD in cursosPD:
             cursoPD.addProfesorCandidato(p1)
+    
+    def setProfesorFijoACurso(self,nombreProfesor,codigoCurso):
+        profesor = self.buscarProfesorPorNombre(nombreProfesor)
+        curso = self.buscarCursoPorCodigo(codigoCurso)
+        curso.addProfesorFijo(profesor)
+
 
     def setPeriodo(self,horaPeriodo,salon,idperiodo,idHora,idSalon):        
         horario = self.buscarHorario(horaPeriodo)
@@ -114,6 +126,12 @@ class ControlDatos:
         for curso in self.cursos:
             if curso.codigo == codigo:
                 return curso
+        return 0
+
+    def buscarProfesorPorNombre(self,nombre):
+        for profesor in self.profesores:
+            if profesor.nombre == nombre:
+                return profesor
         return 0
 
     def buscarCarreraPorCodigo(self,codigo):

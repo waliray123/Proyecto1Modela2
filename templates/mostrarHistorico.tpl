@@ -2,8 +2,12 @@
 <html>
 <head>
     <title>Lista de Elementos</title>
+	<link rel="stylesheet" href="tablaHorario.css">
 </head>
 <body>    
+	<div class="container">
+        <h1 class="titulo">Historico de Horarios Creados</h1>
+    </div>
     <table class="scrollable-table">
 		<thead>
 			<tr>

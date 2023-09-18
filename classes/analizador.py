@@ -1,5 +1,6 @@
 import datetime
 import copy
+import random
 from classes.controlDatos import ControlDatos
 from classes.horarioFinal import HorarioFinal
 from classes.advertencia import Advertencia
@@ -8,11 +9,14 @@ from classes.advertencia import Advertencia
 
 class AnalizadorHorario:
 
-    def __init__(self,control,semestre,duracionPeriodo):        
+    def __init__(self,control,semestre,duracionPeriodo,tipoGeneracion,cantidadCorridas,cantPeriodos):        
         self.control = control
         self.analizarEnQueSalonCabeCurso()        
         self.semestreAnalizar = semestre
         self.duracionPeriodo = duracionPeriodo
+        self.tipoGeneracion = tipoGeneracion
+        self.cantidadCorridas = cantidadCorridas
+        self.cantPeriodos = cantPeriodos
 
     #Analizar en que salon cabria cada curso segun la cantidad de estudiantes
     def analizarEnQueSalonCabeCurso(self):         
@@ -20,6 +24,8 @@ class AnalizadorHorario:
             for s1 in self.control.salones:
                 if c1.cantidadEstudiantes <= s1.asientos:
                     c1.addSalonCandidato(s1)
+
+    
             
     #Validar el horario segun el salon con el curso, cantidad de alumnos, y profesor
     def analizarCursoEntreEnPeriodo(self):        
@@ -27,34 +33,99 @@ class AnalizadorHorario:
         #Por cada curso que se tenga se tratara de asignar a un horario
         # Hay que ordenar los cursos que se asignaran en el semestre
         cursosEnSemestre = self.cursosAOrdenarPorSemestre(self.control.cursos, self.semestreAnalizar)
+        cantidadTotalCursosAsignar = len(cursosEnSemestre)
         
-        #Primero los ordena por orden ascendente lo cual hace prioridad a los cursos que se inscribieron primero sin tomar en cuenta la prioridad
-        cursosOrdenadosAscendente = sorted(cursosEnSemestre, key=lambda x: x.codigo, reverse=False)        
+        if self.tipoGeneracion == "Ascendente":
+            #Primero los ordena por orden ascendente lo cual hace prioridad a los cursos que se inscribieron primero sin tomar en cuenta la prioridad
+            cursosOrdenadosAscendente = sorted(cursosEnSemestre, key=lambda x: x.codigo, reverse=False)    
+            horarioFinalAscendente = self.crearHorarioFinalCursoMasImportante(cursosOrdenadosAscendente,"Horario ordenado segun cursos ordenados ascendentemente")    
+            horarioFinalAscendente.calcularEficiencia(cantidadTotalCursosAsignar)
+            horariosARetornar.append(horarioFinalAscendente)
+        elif self.tipoGeneracion == "Descendente":
 
-        #Luego se utilizan los cursos ordenados Descendentemente
-        cursosOrdenadosDescendente = sorted(cursosEnSemestre, key=lambda x: x.codigo, reverse=True)
+            #Luego se utilizan los cursos ordenados Descendentemente
+            cursosOrdenadosDescendente = sorted(cursosEnSemestre, key=lambda x: x.codigo, reverse=True)
+            horarioFinalDescendente = self.crearHorarioFinalCursoMasImportante(cursosOrdenadosDescendente,"Horario ordenado segun cursos ordenados descendentemente")
+            horarioFinalDescendente.calcularEficiencia(cantidadTotalCursosAsignar)
+            horariosARetornar.append(horarioFinalDescendente)
 
-        #Despues se utiliza la prioridad de los cursos para llenar estos cursos por prioridad
-        cursosOrdenadosPrioridad = sorted(cursosEnSemestre, key=lambda x: x.prioridad, reverse=True)
+        elif self.tipoGeneracion == "Prioridad":
+            #Despues se utiliza la prioridad de los cursos para llenar estos cursos por prioridad
+            cursosOrdenadosPrioridad = sorted(cursosEnSemestre, key=lambda x: x.prioridad, reverse=True)
+            for i in range(int(self.cantidadCorridas)):
+                cursosAleatorizadosPrioridad = self.aleatorizarCursosPrioridad(cursosOrdenadosPrioridad)
+                horarioFinalPrioridad = self.crearHorarioFinalCursoMasImportante(cursosAleatorizadosPrioridad,"Horario ordenado segun cursos ordenados por priodad de forma ascendente")
+                horarioFinalPrioridad.calcularEficiencia(cantidadTotalCursosAsignar)
+                horariosARetornar.append(horarioFinalPrioridad)
 
-        #Ahora se utiliza la cantidad de estudiantes como prioridad, entre mas estudiantes alla mas rapido se asignaran
-        cursosOrdenadosCantidadEstudiantes = sorted(cursosEnSemestre, key=lambda x: x.cantidadEstudiantes, reverse=True)
-                
-        
-        
-        #Se crean varios horarios finales donde se guardaran y dibujaran los resultados
-        horarioFinalAscendente = self.crearHorarioFinalCursoMasImportante(cursosOrdenadosAscendente,"Horario ordenado segun cursos ordenados ascendentemente")
-        horarioFinalDescendente = self.crearHorarioFinalCursoMasImportante(cursosOrdenadosDescendente,"Horario ordenado segun cursos ordenados descendentemente")
-        horarioFinalPrioridad = self.crearHorarioFinalCursoMasImportante(cursosOrdenadosPrioridad,"Horario ordenado segun cursos ordenados por priodad de forma ascendente")
-        horarioFinalCantidadEstudiantes = self.crearHorarioFinalCursoMasImportante(cursosOrdenadosCantidadEstudiantes,"Horario ordenado segun cursos ordenados de mayor a menor cantidad de estudiantes")
-
-
-        horariosARetornar.append(horarioFinalAscendente)
-        horariosARetornar.append(horarioFinalDescendente)
-        horariosARetornar.append(horarioFinalPrioridad)
-        horariosARetornar.append(horarioFinalCantidadEstudiantes)
+        elif self.tipoGeneracion == "Cantidad":
+            #Ahora se utiliza la cantidad de estudiantes como prioridad, entre mas estudiantes alla mas rapido se asignaran
+            cursosOrdenadosCantidadEstudiantes = sorted(cursosEnSemestre, key=lambda x: x.cantidadEstudiantes, reverse=True)
+            for i in range(int(self.cantidadCorridas)):
+                cursosAleatorizadosCantidad = self.aleatorizarCursosCantidad(cursosOrdenadosCantidadEstudiantes)
+                horarioFinalCantidadEstudiantes = self.crearHorarioFinalCursoMasImportante(cursosAleatorizadosCantidad,"Horario ordenado segun cursos ordenados de mayor a menor cantidad de estudiantes")
+                horarioFinalCantidadEstudiantes.calcularEficiencia(cantidadTotalCursosAsignar)
+                horariosARetornar.append(horarioFinalCantidadEstudiantes)
 
         return horariosARetornar
+    
+    
+    def aleatorizarCursosPrioridad(self,cursos):
+        cursosDevolver = []
+        # Diccionario para almacenar las listas agrupadas
+        grupos = {}
+
+        # Itera a través de los números
+        # Itera a través de las personas
+        for curso in cursos:
+            prioridad = curso.prioridad
+            # Si la edad ya está en el diccionario, agrega la persona a la lista correspondiente
+            if prioridad in grupos:
+                grupos[prioridad].append(curso)
+            else:
+                # Si la edad no está en el diccionario, crea una nueva lista con la persona
+                grupos[prioridad] = [curso]
+
+        # Ahora grupos contiene las listas de números iguales
+        listas_agrupadas = list(grupos.values())
+
+        # Imprime las listas agrupadas
+        for lista in listas_agrupadas:
+            random.shuffle(lista)
+            for elemento in lista:
+                cursosDevolver.append(elemento)
+        
+        return cursosDevolver
+    
+
+    def aleatorizarCursosCantidad(self,cursos):
+        cursosDevolver = []
+        # Diccionario para almacenar las listas agrupadas
+        grupos = {}
+
+        # Itera a través de los números
+        # Itera a través de las personas
+        for curso in cursos:
+            cantidadEstudiantes = curso.cantidadEstudiantes
+            # Si la edad ya está en el diccionario, agrega la persona a la lista correspondiente
+            if cantidadEstudiantes in grupos:
+                grupos[cantidadEstudiantes].append(curso)
+            else:
+                # Si la edad no está en el diccionario, crea una nueva lista con la persona
+                grupos[cantidadEstudiantes] = [curso]
+
+        # Ahora grupos contiene las listas de números iguales
+        listas_agrupadas = list(grupos.values())
+
+        # Imprime las listas agrupadas
+        for lista in listas_agrupadas:
+            random.shuffle(lista)
+            for elemento in lista:
+                cursosDevolver.append(elemento)
+        
+        return cursosDevolver
+
+
 
         
                 
@@ -62,47 +133,49 @@ class AnalizadorHorario:
     def crearHorarioFinalCursoMasImportante(self, cursos,nombreHorarioFinal):
         #Por cada curso se asignara al primer periodo de la lista de periodos segun su disponibilidad (salon: cantEstudiante)junto con un profesor que lo pueda dar
         listaPeriodos1 = self.crearNuevaListaPeriodos(self.control.periodos)
-        horarioFinal1 = HorarioFinal(nombreHorarioFinal,listaPeriodos1,self.duracionPeriodo)
+        horarioFinal1 = HorarioFinal(nombreHorarioFinal,listaPeriodos1,self.duracionPeriodo,self.cantPeriodos,self.control.salones)
         cantidadPeriodos = len(listaPeriodos1)
         self.desasignarTodosCursos(cursos)
         #Se realiza 3 veces la asignacion de cursos, 1. Asignar los cursos con profesores obligatorios, 2. Asignar con profesores optativos, 3. Asignar cursos con profesores de la carrera
         #Si se desean solo los primeros 2 cambiar a range(2) en vez de range(3)
         for tipoAsignacion in range(3):
             for curso1 in cursos:
-                vecesPasado = 0                
+                vecesPasado = 0
+                pasar = 0
                 if curso1.asignado == 0:
                     if tipoAsignacion == 0:
                         if not curso1.profesoresFijos:
-                            break
-                    seAvisoPeriodoSemesteEnHora = 0
-                    hayPeriodoDeSemestreEnHora = 0
-                    for periodo1 in listaPeriodos1:                        
-                        vecesPasado+=1
-                        if periodo1.curso == None:
-                            #Revisa que el curso que se va a asignar no este a la misma hora de otro con semestre igual                                
-                            if hayPeriodoDeSemestreEnHora <= 0:
-                                hayPeriodoDeSemestreEnHora = self.revisarPeriodoSemestre(periodo1,curso1,listaPeriodos1)
-                            if hayPeriodoDeSemestreEnHora <= 0:
-                                if periodo1.salon.asientos >= curso1.cantidadEstudiantes:
-                                    estaAsignadoProfesor = self.asignarProfesorAPeriodo(periodo1, curso1, horarioFinal1, tipoAsignacion)
-                                    if estaAsignadoProfesor == 0: 
-                                        #Si se esta realizando el tipo de asignacion 0 entonces se esta asignando el profesor fijo, si es el 1 se esta asignando un profesor cualquiera                                                                        
-                                        periodo1.setCurso(curso1)
-                                        curso1.asignado = 1
-                                        break
-                                    else:
-                                        if vecesPasado == cantidadPeriodos:
-                                            if tipoAsignacion == 1:
-                                                horarioFinal1.agregarUnaAdvertencia(2,"No se logro asignar un profesor obligatorio al curso: " + curso1.nombre, 1)
-                                            elif tipoAsignacion == 2:
-                                                horarioFinal1.agregarUnaAdvertencia(3,"No se logro asignar un ningun profesor obligatorio al curso: " + curso1.nombre, 1)
-                            else:                       
-                                if seAvisoPeriodoSemesteEnHora == 0:
-                                    #TODO: Advertir sobre que el periodo no se asigno en la hora del periodo1 porque hay un curso del mismo semestre que se asigno antes
-                                    seAvisoPeriodoSemesteEnHora = 1
-                                if hayPeriodoDeSemestreEnHora <= 1:
-                                    seAvisoPeriodoSemesteEnHora = 0
-                        hayPeriodoDeSemestreEnHora -= 1
+                            pasar = 1 # Pasar porque no tiene profesores fijos 
+                    if pasar == 0:
+                        seAvisoPeriodoSemesteEnHora = 0
+                        hayPeriodoDeSemestreEnHora = 0
+                        for periodo1 in listaPeriodos1:                        
+                            vecesPasado+=1
+                            if periodo1.curso == None:
+                                #Revisa que el curso que se va a asignar no este a la misma hora de otro con semestre igual                                
+                                if hayPeriodoDeSemestreEnHora <= 0:
+                                    hayPeriodoDeSemestreEnHora = self.revisarPeriodoSemestre(periodo1,curso1,listaPeriodos1)
+                                if hayPeriodoDeSemestreEnHora <= 0:
+                                    if periodo1.salon.asientos >= curso1.cantidadEstudiantes:
+                                        estaAsignadoProfesor = self.asignarProfesorAPeriodo(periodo1, curso1, horarioFinal1, tipoAsignacion)
+                                        if estaAsignadoProfesor == 0: 
+                                            #Si se esta realizando el tipo de asignacion 0 entonces se esta asignando el profesor fijo, si es el 1 se esta asignando un profesor cualquiera                                                                        
+                                            periodo1.setCurso(curso1)
+                                            curso1.asignado = 1
+                                            break
+                                        else:
+                                            if vecesPasado == cantidadPeriodos:
+                                                if tipoAsignacion == 1:
+                                                    horarioFinal1.agregarUnaAdvertencia(2,"No se logro asignar un profesor obligatorio al curso: " + curso1.nombre, 1)
+                                                elif tipoAsignacion == 2:
+                                                    horarioFinal1.agregarUnaAdvertencia(3,"No se logro asignar un ningun profesor obligatorio al curso: " + curso1.nombre, 1)
+                                else:                       
+                                    if seAvisoPeriodoSemesteEnHora == 0:
+                                        #TODO: Advertir sobre que el periodo no se asigno en la hora del periodo1 porque hay un curso del mismo semestre que se asigno antes
+                                        seAvisoPeriodoSemesteEnHora = 1
+                                    if hayPeriodoDeSemestreEnHora <= 1:
+                                        seAvisoPeriodoSemesteEnHora = 0
+                            hayPeriodoDeSemestreEnHora -= 1
 
         return horarioFinal1
     

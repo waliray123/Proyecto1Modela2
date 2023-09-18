@@ -1,6 +1,7 @@
 from bottle import route, get, run, template, static_file, redirect, request
 from connection.conexionDB import ConexionDB
 from classes.guardadoHorarios import GuardadoHorarios
+from init import Inicializador
 import os
 
 conexion = ConexionDB()
@@ -9,6 +10,14 @@ codigoHorarioVer = 0
 indiceActual = 0 
 esPrimero = 1
 horariosR = []
+tipoGeneracion = ""
+cantidadCorridas = ""
+control = None
+cantPeriodos = None
+duracionPeriodo = 50
+semestreUsar = 0
+strHoraI = "7:00 AM"
+strHoraF = "1:00 PM"
 
 @route('/')
 def index():
@@ -19,12 +28,14 @@ def index():
 
 @route('/prueba')
 def prueba():   
-    global indiceActual,horariosR,esPrimero,conexion,codigoHorarioVer,esNuevo
-    from init import horariosRetornados, control, listaPeriodos    
+    global indiceActual,horariosR,esPrimero,conexion,codigoHorarioVer,esNuevo,tipoGeneracion,cantidadCorridas,control,cantPeriodos,duracionPeriodo,semestreUsar,strHoraI,strHoraF
     if esNuevo == 0:
-        if esPrimero == 1:
+        if esPrimero == 1:            
+            iniciar = Inicializador(tipoGeneracion,cantidadCorridas,duracionPeriodo,semestreUsar,strHoraI,strHoraF)
             indiceActual = 0
-            horariosR = horariosRetornados
+            horariosR = iniciar.horariosRetornados
+            control = iniciar.control1
+            cantPeriodos = iniciar.listaPeriodos
             horarioAGuardar = GuardadoHorarios(horariosR,"Es una prueba de nombre")
             conexion.insertarHorarios(horarioAGuardar)
     else:
@@ -32,7 +43,7 @@ def prueba():
         horariosR = conexion.traerHorarioPorCodigo(codigoHorarioVer)
         print("obtenido")
     
-    return template('templates/prueba.tpl',horario=horariosR[indiceActual],control=control,cantPeriodos=listaPeriodos)
+    return template('templates/prueba.tpl',horario=horariosR[indiceActual],indice=indiceActual)
 
 @route('/mostrarHistorico')
 def mostrarHistorico():   
@@ -63,8 +74,43 @@ def atras():
         indiceActual -= 1
     return redirect('/prueba')
 
+@route('/prueba2')
+def prueba2():       
+    return template('templates/prueba2.tpl')
+
 @route('/upload', method='POST')
 def do_upload():
+    global tipoGeneracion, cantidadCorridas,duracionPeriodo,semestreUsar,strHoraI,strHoraF
+    tipoGeneracion = request.forms.get('tipo')
+    cantidadCorridas = request.forms.get('cantidadPrioridad')
+    duracionPeriodo = request.forms.get('Duracion')
+    semestreUsar = request.forms.get('Semestre')
+    strHoraI = request.forms.get('HoraInicial')
+    strHoraF = request.forms.get('HoraFinal')
+
+    if duracionPeriodo == '':
+        duracionPeriodo = 50
+    
+    if semestreUsar == '':
+        semestreUsar = 0
+    
+    if strHoraI == '':
+        strHoraI = "7:00 AM"
+    
+    if strHoraF == '':
+        strHoraF = "1:00 PM"
+
+
+
+
+    
+    """
+    if cantidadCorridas == "":
+        print("None")
+    else:
+        print(cantidadCorridas)
+    """
+
     uploaded_file = request.files.get('file')
 
     if uploaded_file:

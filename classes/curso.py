@@ -2,7 +2,7 @@ class Curso:
 
     
 
-    def __init__(self,codigo,nombre,creditos,semestre,duracion,carrera,cantidadEstudiantes):
+    def __init__(self,codigo,nombre,creditos,semestre,duracion,carrera,cantidadEstudiantes,color):
         self.codigo = codigo
         self.nombre = nombre
         self.creditos = creditos
@@ -16,6 +16,7 @@ class Curso:
         self.profesoresFijos = []
         self.asignado = 0
         self.salonEspecifico = []
+        self.color = color
 
     def addProfesorCandidato(self,profesor):
         self.profesoresCandidatos.append(profesor)
