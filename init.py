@@ -1,11 +1,21 @@
 from datetime import datetime, timedelta #Utilizacion de Tiempos
 import matplotlib.pyplot as plt
 from classes.analizador import AnalizadorHorario
-from datos.mockD import MockData #Carga de datos
+from datos import mockD 
+import importlib
 
 class Inicializador:
 
     def __init__(self,tipoGeneracion,cantidadCorridas,duracionPeriodo,semestreUsar,strHoraI,strHoraF):            
+        from datos.mockD import MockData #Carga de datos
+        try:
+            importlib.reload(mockD)
+            print('Módulo "mockD" recargado exitosamente.')
+        except ImportError:
+            print('No se pudo encontrar el módulo "mockD".')
+        except Exception as e:
+            print(f'Error al recargar el módulo "mockD": {e}')
+            
         """Cargar los datos necesarios: Cursos, Estudiantes, Profesores, Salones"""
         cargarDatos = MockData()
         control = cargarDatos.analizarDatos()

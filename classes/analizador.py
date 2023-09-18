@@ -39,14 +39,14 @@ class AnalizadorHorario:
             #Primero los ordena por orden ascendente lo cual hace prioridad a los cursos que se inscribieron primero sin tomar en cuenta la prioridad
             cursosOrdenadosAscendente = sorted(cursosEnSemestre, key=lambda x: x.codigo, reverse=False)    
             horarioFinalAscendente = self.crearHorarioFinalCursoMasImportante(cursosOrdenadosAscendente,"Horario ordenado segun cursos ordenados ascendentemente")    
-            horarioFinalAscendente.calcularEficiencia(cantidadTotalCursosAsignar)
+            horarioFinalAscendente.calcularEficiencia(cantidadTotalCursosAsignar,cursosOrdenadosAscendente)
             horariosARetornar.append(horarioFinalAscendente)
         elif self.tipoGeneracion == "Descendente":
 
             #Luego se utilizan los cursos ordenados Descendentemente
             cursosOrdenadosDescendente = sorted(cursosEnSemestre, key=lambda x: x.codigo, reverse=True)
             horarioFinalDescendente = self.crearHorarioFinalCursoMasImportante(cursosOrdenadosDescendente,"Horario ordenado segun cursos ordenados descendentemente")
-            horarioFinalDescendente.calcularEficiencia(cantidadTotalCursosAsignar)
+            horarioFinalDescendente.calcularEficiencia(cantidadTotalCursosAsignar,cursosOrdenadosDescendente)
             horariosARetornar.append(horarioFinalDescendente)
 
         elif self.tipoGeneracion == "Prioridad":
@@ -55,7 +55,7 @@ class AnalizadorHorario:
             for i in range(int(self.cantidadCorridas)):
                 cursosAleatorizadosPrioridad = self.aleatorizarCursosPrioridad(cursosOrdenadosPrioridad)
                 horarioFinalPrioridad = self.crearHorarioFinalCursoMasImportante(cursosAleatorizadosPrioridad,"Horario ordenado segun cursos ordenados por priodad de forma ascendente")
-                horarioFinalPrioridad.calcularEficiencia(cantidadTotalCursosAsignar)
+                horarioFinalPrioridad.calcularEficiencia(cantidadTotalCursosAsignar,cursosAleatorizadosPrioridad)
                 horariosARetornar.append(horarioFinalPrioridad)
 
         elif self.tipoGeneracion == "Cantidad":
@@ -64,7 +64,7 @@ class AnalizadorHorario:
             for i in range(int(self.cantidadCorridas)):
                 cursosAleatorizadosCantidad = self.aleatorizarCursosCantidad(cursosOrdenadosCantidadEstudiantes)
                 horarioFinalCantidadEstudiantes = self.crearHorarioFinalCursoMasImportante(cursosAleatorizadosCantidad,"Horario ordenado segun cursos ordenados de mayor a menor cantidad de estudiantes")
-                horarioFinalCantidadEstudiantes.calcularEficiencia(cantidadTotalCursosAsignar)
+                horarioFinalCantidadEstudiantes.calcularEficiencia(cantidadTotalCursosAsignar,cursosAleatorizadosCantidad)
                 horariosARetornar.append(horarioFinalCantidadEstudiantes)
 
         return horariosARetornar
@@ -165,14 +165,19 @@ class AnalizadorHorario:
                                             break
                                         else:
                                             if vecesPasado == cantidadPeriodos:
-                                                if tipoAsignacion == 1:
-                                                    horarioFinal1.agregarUnaAdvertencia(2,"No se logro asignar un profesor obligatorio al curso: " + curso1.nombre, 1)
+                                                if tipoAsignacion == 0:
+                                                    horarioFinal1.agregarUnaAdvertencia(1,"No se logro asignar un profesor obligatorio al curso: " + curso1.nombre, 1)
+                                                elif tipoAsignacion == 1:
+                                                    horarioFinal1.agregarUnaAdvertencia(2,"No se logro asignar un profesor optativo al curso: " + curso1.nombre, 1)
                                                 elif tipoAsignacion == 2:
-                                                    horarioFinal1.agregarUnaAdvertencia(3,"No se logro asignar un ningun profesor obligatorio al curso: " + curso1.nombre, 1)
+                                                    horarioFinal1.agregarUnaAdvertencia(3,"No se logro asignar un ningun profesor al curso: " + curso1.nombre, 1)
+                                    else:
+                                        horarioFinal1.agregarUnaAdvertencia(1,"No se logro asignar el curso: " + curso1.nombre + " porque por falta de asientos en salon: " + periodo.salon.numero, 2)
                                 else:                       
                                     if seAvisoPeriodoSemesteEnHora == 0:
-                                        #TODO: Advertir sobre que el periodo no se asigno en la hora del periodo1 porque hay un curso del mismo semestre que se asigno antes
+                                        #Advertir sobre que el periodo no se asigno en la hora del periodo1 porque hay un curso del mismo semestre que se asigno antes
                                         seAvisoPeriodoSemesteEnHora = 1
+                                        horarioFinal1.agregarUnaAdvertencia(1,"No se logro asignar el curso: " + curso1.nombre + " porque hay un periodo con un curso del mismo semestre asignado a esa hora", 2)
                                     if hayPeriodoDeSemestreEnHora <= 1:
                                         seAvisoPeriodoSemesteEnHora = 0
                             hayPeriodoDeSemestreEnHora -= 1
@@ -193,6 +198,8 @@ class AnalizadorHorario:
             estaAsignadoElPeriodo = profesor.asignarPeriodoUsado(horarioFinal,periodo)
             if estaAsignadoElPeriodo == 2 or estaAsignadoElPeriodo == 3:
                 periodo.setProfesor(profesor)
+                if tipoAsignacion == 2:
+                    horarioFinal.agregarUnaAdvertencia(2,"Se asigno el profesor: "+profesor.nombre+", al curso:" + curso.nombre + ", por ser solo de la carrera", 1)                                            
                 return 0 #Se logro asignar un profesor                   
         return 1 #No se logro asignar ningun profesor        
     

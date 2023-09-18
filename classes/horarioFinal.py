@@ -24,19 +24,31 @@ class HorarioFinal:
         advertencia = Advertencia(tipo,contenido,tipoAsignacion)
         self.advertencias.append(advertencia)
     
-    def calcularEficiencia(self,cantidadTotalCursos):
+    def calcularEficiencia(self,cantidadTotalCursos,cursos):
         # La eficiencia sera medida con varios datos la suma de ellos hacen la eficiencia, entre mas alta mejor la eficiencia
         # (Cursos asignados / Todos los cursos) -> Eficiencia de cursos asignados, siempre es 1 o menor que 1, entre mas cercano a 1 mejor        
         # (Cantidad de cursos no asignados / Periodos libres ) -> Eficiencia de usabilidad de periodos, es 1 o menor, si es negativo quiere decir que no habia
         # posibilidad de insertar mas cursos porque faltaban periodos libres, si es negativo entre mas cerca del 0 mas probabilidad de insertar tenia
-
+        cursosAsignados = []
         cantidadCursosAsignados = 0
         cantidadPeriodosLibres = 0
         for periodo in self.listaPeriodos:
             if periodo.curso != None:
+                cursosAsignados.append(periodo.curso)
                 cantidadCursosAsignados += 1
             else:
                 cantidadPeriodosLibres += 1
+        
+        set1 = set(cursos)
+        set2 = set(cursosAsignados)
+
+        # Encontrar elementos en lista1 que no están en lista2
+        elementos_no_contenidos = set1 - set2
+
+        # Convertir el resultado de nuevo en una lista
+        resultado = list(elementos_no_contenidos)
+        for resul in resultado:
+            self.agregarUnaAdvertencia(3,"No se logro asignar el curso: " + resul.nombre, 3)
 
         cantidadCursosNoAsignados = cantidadTotalCursos - cantidadCursosAsignados
 

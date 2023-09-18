@@ -15,7 +15,7 @@ class MockData:
         """Creacion de cursos  Codigo, Nombre, Creditos, Semestre, Duracion(horas la semana), Carrera, Cantidad de estudiantes"""
         control.setCurso(1012,"Curso 1", 5, 1, 3, 1, 10)
         control.setCurso(1013,"Curso 2", 5, 3, 3, 1, 9)
-        control.setCurso(1014,"Curso BBB", 5, 5, 3, 1, 9)
+        control.setCurso(1014,"Curso 3", 5, 5, 3, 1, 9)
         control.setCurso(1015,"Curso 4", 5, 3, 3, 1, 9)
         control.setCurso(1016,"Curso 5", 5, 1, 3, 1, 9)
     

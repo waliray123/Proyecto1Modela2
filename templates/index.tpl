@@ -47,7 +47,7 @@
                         <br>
                         <br>
                         <label for="Duracion">Ingrese la cantidad en minutos de la duracion del periodo:</label>
-                        <input type="number" id="Duracion" name="Duracion" min="0">
+                        <input type="number" id="Duracion" name="Duracion" min="0" value="60">
                         <br>
                         <div id="cantidadPrioridadTextBox" style="display: none;">
                             <label for="cantidadPrioridad">Ingrese un valor numérico:</label>

@@ -35,7 +35,10 @@ class ControlDatos:
         c1 = self.buscarCarreraPorCodigo(carrera)
         if c1 == 0:
             print("No se pudo ingresar la carrera ya que no existe una con codigo: " + str(carrera))
-        c2 = Curso(codigo,nombre,creditos,semestre,duracion,c1,cantidadEstudiantes,c1.color)
+            carreraExtra = Carrera(0, "No se asigno carrera","#FF0000")
+            c2 = Curso(codigo,nombre,creditos,semestre,duracion,carreraExtra,cantidadEstudiantes,"#FF0000")
+        else:
+            c2 = Curso(codigo,nombre,creditos,semestre,duracion,c1,cantidadEstudiantes,c1.color)
         self.cursos.append(c2)
 
     def setSalon(self,numero,asientos):

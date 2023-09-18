@@ -20,7 +20,7 @@
 	        		<tr>
 	        		    <th class="fixed-column"><h1></h1></th>
                         % for salon in horario.salones:
-                        <th><h1>{{salon.numero}} : {{salon.asientos}}</h1></th>
+                        <th><h1>{{salon.numero}}</h1> <br>Asientos:{{salon.asientos}}</th>
                         % end										
 	        		</tr>
 	        	</thead>
@@ -69,7 +69,15 @@
 	        	<tbody>	        		        			
                         % for advertencia in horario.advertencias:
                             <tr>
-                            <td class="fixed-column">{{advertencia.tipo}}</td>
+                            <td class="fixed-column">
+                            % if advertencia.tipo == 1:
+                                Normal
+                            % elif advertencia.tipo == 2:
+                                Grave
+                            % elif advertencia.tipo == 3:
+                                Irreparable
+                            % end
+                            </td>
                             <td class="fixed-column">{{advertencia.asignacion}}</td>
                             <td class="fixed-column">{{advertencia.contenido}}</td>
                             </tr>

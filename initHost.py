@@ -83,13 +83,10 @@ def do_upload():
     global tipoGeneracion, cantidadCorridas,duracionPeriodo,semestreUsar,strHoraI,strHoraF
     tipoGeneracion = request.forms.get('tipo')
     cantidadCorridas = request.forms.get('cantidadPrioridad')
-    duracionPeriodo = request.forms.get('Duracion')
+    duracionPeriodo = int(request.forms.get('Duracion'))
     semestreUsar = request.forms.get('Semestre')
     strHoraI = request.forms.get('HoraInicial')
     strHoraF = request.forms.get('HoraFinal')
-
-    if duracionPeriodo == '':
-        duracionPeriodo = 50
     
     if semestreUsar == '':
         semestreUsar = 0
